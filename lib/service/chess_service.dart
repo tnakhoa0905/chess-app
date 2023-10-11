@@ -19,6 +19,7 @@ class ChessServiceImplement extends ChessServicer {
   List<ChessPosition> randomListChess(List<ChessPosition> list) {
     List<ChessPosition> listResult = list;
     listResult.shuffle();
+    print(listResult);
     return listResult;
   }
 
