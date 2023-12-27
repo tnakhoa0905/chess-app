@@ -64,7 +64,6 @@ class _PieceState extends State<Piece> {
                         spreadRadius: 2,
                       )
                     ],
-                    //border: Border.all(color: Color.fromRGBO(255, 255, 255, .7), width: 2),
                     borderRadius: BorderRadius.all(
                       Radius.circular(57 / 2),
                     ),

@@ -15,11 +15,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Board extends StatefulWidget {
-  final int roomId;
-  final String userName;
   const Board({Key? key, required this.roomId, required this.userName})
       : super(key: key);
-
+  final int roomId;
+  final String userName;
   @override
   State<Board> createState() => _BoardState();
 }
@@ -36,30 +35,42 @@ class _BoardState extends State<Board> {
   final ChessServicer _chessService = ChessServiceImplement();
   final UserInRoomService _userInRoomService = UserInRoomServireImplement();
   List<ChessPositionModel> movePoints = [];
-  late Stream<List<ChessPosition>> chessStream;
+  // late Stream<List<ChessPosition>> chessStream;
   final Supabase supabase = Supabase.instance;
   String userName = '';
+  late final Stream<List<ChessPosition>> _chessStream;
+
   @override
   void initState() {
+    print(widget.userName);
     super.initState();
     _board.randomlist(widget.roomId);
     setYourTurn();
     activeItem = null;
     lastPosition = ChessPositionModel(x: -1, y: -1);
+    _chessStream = supabase.client
+        .from("chess_in_room")
+        .stream(primaryKey: ['id'])
+        .order('id', ascending: true)
+        .eq("room_id", widget.roomId)
+        .map(
+          (maps) => maps.map((map) => ChessPosition.fromJson(map)).toList(),
+        );
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    setState(() {
-      yourTurn;
-      listChessPositions;
-    });
+    // setState(() {
+    //   yourTurn;
+    //   // listChessPositions;
+    // });
   }
 
   @override
   void dispose() {
     super.dispose();
+    _chessService.deleteAllChess(widget.roomId);
   }
 
   void setYourTurn() async {
@@ -99,6 +110,7 @@ class _BoardState extends State<Board> {
     if (yourTurn == false) return false;
 
     if (newActive.chess.isDead || !newActive.chess.isDead) {
+      print(newActive.chess.chessCode);
       if (activeItem != null) {
         if (activeItem!.chess.isRed != isRed && yourTurn == true) {
           setState(() {
@@ -126,30 +138,35 @@ class _BoardState extends State<Board> {
 
         if (indexEat != -1) {
           setState(() {
-            listChessPositions[index].x = toPosition.x;
-            listChessPositions[index].y = toPosition.y;
-            listChessPositions[index].chess.isUp = false;
             listChessPositions[indexEat].chess.isDead = true;
             movePoints = [];
             activeItem = null;
             yourTurn = !yourTurn;
           });
-
-          await _chessService.updateChess(listChessPositions[indexEat]);
-          await _chessService.updateChess(listChessPositions[index]);
-        } else {
           setState(() {
+            listChessPositions[index].chess.isUp = false;
             listChessPositions[index].x = toPosition.x;
             listChessPositions[index].y = toPosition.y;
+          });
+          // Future.delayed(const Duration(seconds: 2), () async {});
+          _chessService.updateChess(listChessPositions[indexEat]);
+          _chessService.updateChess(listChessPositions[index]);
+        } else {
+          setState(() {
             listChessPositions[index].chess.isUp = false;
+
             movePoints = [];
             activeItem = null;
             yourTurn = !yourTurn;
           });
-          await _chessService.updateChess(listChessPositions[index]);
+          setState(() {
+            listChessPositions[index].x = toPosition.x;
+            listChessPositions[index].y = toPosition.y;
+          });
+          Future.delayed(const Duration(seconds: 2), () async {});
+          _chessService.updateChess(listChessPositions[index]);
         }
-        await _userInRoomService.updateTurnInUserInRoom(widget.roomId);
-        Future.delayed(const Duration(seconds: 2), () async {});
+        _userInRoomService.updateTurnInUserInRoom(widget.roomId);
 
         // List<ChessPositionModel> listKingEnermy = ChessRule()
         //     .moveKing(ChessType.tuong, chessPosition, listChessPositions);
@@ -322,38 +339,34 @@ class _BoardState extends State<Board> {
               ),
             ),
             StreamBuilder<List<ChessPosition>>(
-              stream: supabase.client
-                  .from("chess_in_room")
-                  .stream(primaryKey: ['id'])
-                  .order('id', ascending: true)
-                  .eq("room_id", widget.roomId)
-                  .map(
-                    (maps) =>
-                        maps.map((map) => ChessPosition.fromJson(map)).toList(),
-                  ),
+              stream: _chessStream,
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
-                  listChessPositions = listChessPositions;
+                  listChessPositions = [];
                   return const Center(child: CircularProgressIndicator());
                 }
 
                 if (snapshot.hasData) {
                   List<ChessPosition> listChessPositonResult = snapshot.data!;
-                  // if (listChessPositonResult.length < 32) {
-                  //   listChessPositions = [];
-                  //   return const Center(
-                  //     child: CircularProgressIndicator(),
-                  //   );
+                  print('leght of list chess pos');
+                  print(listChessPositonResult.length);
+                  print(listChessPositions.length);
+
+                  if (listChessPositonResult.length < 32) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+                  // if (listChessPositonResult.length == 32) {
+                  // for (var element in listChessPositonResult) {
+                  //   listChessPositions.add(element);
                   // }
-                  if (listChessPositonResult.length == 32) {
-                    // for (var element in listChessPositonResult) {
-                    //   listChessPositions.add(element);
-                    // }
-                    // if (listChessPositions.length == 32) {
-                    //   listChessPositions.clear();
-                    // }
+                  else {
                     listChessPositions = listChessPositonResult;
                   }
+                  // listChessPositions.clear();
+
+                  // }
                 }
 
                 return ChessPieces(

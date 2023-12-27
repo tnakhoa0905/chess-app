@@ -21,6 +21,7 @@ class _PlayChess extends State<PlayChess> {
   ChessSkin chessSkin = ChessSkin();
   final ChessServicer _chessServicer = ChessServiceImplement();
   final BoardModel _boardModel = BoardModel();
+  final ChessSkin skin = ChessSkin();
   @override
   void initState() {
     super.initState();
@@ -31,37 +32,49 @@ class _PlayChess extends State<PlayChess> {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     roomId = prefs.getInt('roomId')!;
     userName = prefs.getString('userName')!;
-    setState(() {});
+    setState(() {
+      roomId;
+      userName;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    print('play');
+    print(roomId);
+    Size size = MediaQuery.of(context).size;
+    double scale = ChessSkin().getScale(size);
     return SafeArea(
       child: Scaffold(
-        body: SizedBox(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              TextButton(
-                  onPressed: () async {
-                    await _chessServicer.deleteAllChess(roomId);
-                    _boardModel.randomlist(roomId);
-                  },
-                  child: const Text('New Game')),
-              const PlaySinglePlayer(
-                placeAt: Alignment.topCenter,
-                myProfile: false,
-              ),
-              Board(
-                roomId: roomId,
-                userName: userName,
-              ),
-              const PlaySinglePlayer(
-                placeAt: Alignment.topCenter,
-                myProfile: true,
-              ),
-            ],
+        body: Center(
+          child: SizedBox(
+            // height: skin.height * scale,
+            width: skin.width * scale,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TextButton(
+                    onPressed: () async {
+                      await _chessServicer.deleteAllChess(roomId);
+                      _boardModel.randomlist(roomId);
+                    },
+                    child: const Text('New Game')),
+                const PlaySinglePlayer(
+                  placeAt: Alignment.topCenter,
+                  myProfile: false,
+                ),
+                if (!(roomId == 0) && !(userName == ''))
+                  Board(
+                    roomId: roomId,
+                    userName: userName,
+                  ),
+                const PlaySinglePlayer(
+                  placeAt: Alignment.topCenter,
+                  myProfile: true,
+                ),
+              ],
+            ),
           ),
         ),
       ),

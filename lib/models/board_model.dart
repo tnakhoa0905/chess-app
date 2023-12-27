@@ -58,6 +58,7 @@ class BoardModel {
   }
 
   void randomlist(int roomId) async {
+    print('random list');
     ChessServicer chessService = ChessServiceImplement();
     List<ChessPosition> listChessPositionsRandom = createAllChesses();
     final SharedPreferences prefs = await SharedPreferences.getInstance();

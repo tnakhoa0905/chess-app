@@ -16,7 +16,9 @@ class HomeScreen extends StatelessWidget {
             ElevatedButton(
                 onPressed: () {
                   Navigator.of(context).push(MaterialPageRoute(
-                      builder: ((context) => const PlayChess())));
+                    builder: ((context) => const PlayChess()),
+                   
+                  ));
                 },
                 child: const Text('Play with friend')),
             ElevatedButton(onPressed: () {}, child: const Text('Play with bot'))
