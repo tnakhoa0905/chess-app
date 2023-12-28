@@ -56,6 +56,11 @@ class ChessRule {
       orElse: () => ChessPosition(
           x: -1, y: -1, chess: Chess(isUp: true, isDead: true, isRed: true)),
     );
+
+    print(newItem.chess.chessCodeUp);
+    if (newItem.chess.chessCode != null) {
+      return true;
+    }
     if (newItem.x == -1) {
       result = false;
     }
@@ -221,6 +226,8 @@ class ChessRule {
         continue;
       }
       // Xem quan ma co bi chan khong
+
+      print('${activePos.x + m[0] ~/ 2} ' '${activePos.y + m[1] ~/ 2}');
       if (checkCanMove(
           ChessPositionModel(
               x: activePos.x + m[0] ~/ 2, y: activePos.y + m[1] ~/ 2),

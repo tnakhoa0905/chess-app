@@ -15,10 +15,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Board extends StatefulWidget {
-  const Board({Key? key, required this.roomId, required this.userName})
+  const Board(
+      {Key? key,
+      required this.roomId,
+      required this.userName,
+      required this.isRed})
       : super(key: key);
   final int roomId;
   final String userName;
+  final bool isRed;
   @override
   State<Board> createState() => _BoardState();
 }
@@ -42,7 +47,6 @@ class _BoardState extends State<Board> {
 
   @override
   void initState() {
-    print(widget.userName);
     super.initState();
     _board.randomlist(widget.roomId);
     setYourTurn();
@@ -58,19 +62,19 @@ class _BoardState extends State<Board> {
         );
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // setState(() {
-    //   yourTurn;
-    //   // listChessPositions;
-    // });
-  }
+  // @override
+  // void didChangeDependencies() {
+  //   super.didChangeDependencies();
+  //   // setState(() {
+  //   //   yourTurn;
+  //   //   // listChessPositions;
+  //   // });
+  // }
 
   @override
   void dispose() {
     super.dispose();
-    _chessService.deleteAllChess(widget.roomId);
+    // _chessService.deleteAllChess(widget.roomId);
   }
 
   void setYourTurn() async {
@@ -100,17 +104,18 @@ class _BoardState extends State<Board> {
   Future<bool> onPointer(ChessPositionModel toPosition) async {
     ChessPosition newActive = listChessPositions.firstWhere(
         (item) =>
-            !item.chess.isDead &&
+            item.chess.isDead == false &&
             item.x == toPosition.x &&
             item.y == toPosition.y,
         orElse: () => ChessPosition(
             x: toPosition.x,
             y: toPosition.y,
-            chess: Chess(isUp: false, isDead: true, isRed: false)));
+            chess: Chess(isUp: false, isDead: false, isRed: false)));
+
+    print(newActive.chess.chessCodeUp);
     if (yourTurn == false) return false;
 
-    if (newActive.chess.isDead || !newActive.chess.isDead) {
-      print(newActive.chess.chessCode);
+    if (!newActive.chess.isDead) {
       if (activeItem != null) {
         if (activeItem!.chess.isRed != isRed && yourTurn == true) {
           setState(() {
@@ -130,40 +135,37 @@ class _BoardState extends State<Board> {
           });
           return false;
         }
-        int indexEat = listChessPositions.indexWhere(
-            (item) => item.x == toPosition.x && item.y == toPosition.y);
-        // setState(() {
-        //   movePoints = [];
-        // });
 
+        int indexEat = listChessPositions.indexWhere((item) =>
+            item.x == toPosition.x &&
+            item.y == toPosition.y &&
+            !item.chess.isDead);
+        // List<ChessPosition> listchekc = [];
         if (indexEat != -1) {
           setState(() {
+            print('move');
             listChessPositions[indexEat].chess.isDead = true;
-            movePoints = [];
+            listChessPositions[index].chess.isUp = false;
             activeItem = null;
             yourTurn = !yourTurn;
-          });
-          setState(() {
-            listChessPositions[index].chess.isUp = false;
             listChessPositions[index].x = toPosition.x;
             listChessPositions[index].y = toPosition.y;
+            movePoints = [];
           });
           // Future.delayed(const Duration(seconds: 2), () async {});
           _chessService.updateChess(listChessPositions[indexEat]);
           _chessService.updateChess(listChessPositions[index]);
         } else {
+          print('move');
+
           setState(() {
             listChessPositions[index].chess.isUp = false;
-
-            movePoints = [];
             activeItem = null;
             yourTurn = !yourTurn;
-          });
-          setState(() {
             listChessPositions[index].x = toPosition.x;
             listChessPositions[index].y = toPosition.y;
+            movePoints = [];
           });
-          Future.delayed(const Duration(seconds: 2), () async {});
           _chessService.updateChess(listChessPositions[index]);
         }
         _userInRoomService.updateTurnInUserInRoom(widget.roomId);
@@ -269,6 +271,7 @@ class _BoardState extends State<Board> {
       fetchMovePoints();
       return true;
     }
+    print(false);
     return false;
   }
 
@@ -282,6 +285,25 @@ class _BoardState extends State<Board> {
       x,
       y,
     );
+  }
+
+  bool checkItemContains(ChessPosition? toPosition) {
+    if (activeItem == null) return false;
+    ChessPosition newActive = listChessPositions.firstWhere(
+        (item) =>
+            !item.chess.isDead &&
+            item.x == toPosition!.x &&
+            item.y == toPosition.y,
+        orElse: () => ChessPosition(
+            x: toPosition!.x,
+            y: toPosition.y,
+            chess: Chess(isUp: false, isDead: true, isRed: false)));
+
+    if (newActive.chess.isDead) {
+      return false;
+    } else {
+      return true;
+    }
   }
 
   @override
@@ -298,89 +320,114 @@ class _BoardState extends State<Board> {
     Size size = MediaQuery.of(context).size;
     double scale = ChessSkin().getScale(size);
 
-    return GestureDetector(
-      onTapUp: (details) {
-        setState(() {
-          onPointer(pointTrans(details.localPosition, scale));
-        });
-      },
-      child: SizedBox(
-        // height: skin.height * ChessSkin().getScale(size),
-        height: skin.height * scale,
-        width: skin.width * scale,
-        child: Stack(
-          children: [
-            StreamBuilder<List<UserInRoomModel>>(
-                stream: supabase.client
-                    .from("user_in_room")
-                    .stream(primaryKey: ["id"])
-                    .eq("room_id", widget.roomId)
-                    .map(
-                      (maps) => maps
-                          .map((map) => UserInRoomModel.fromJson(map))
-                          .toList(),
-                    ),
+    return RotationTransition(
+      turns: widget.isRed
+          ? const AlwaysStoppedAnimation(1)
+          : const AlwaysStoppedAnimation(0.5),
+      child: GestureDetector(
+        onTapUp: (details) {
+          setState(() {
+            onPointer(pointTrans(details.localPosition, scale));
+          });
+        },
+        child: SizedBox(
+          // transform: Matrix4.identity()..rotateX(150),
+          // height: skin.height * ChessSkin().getScale(size),
+          height: skin.height * scale,
+          width: skin.width * scale,
+          child: Stack(
+            children: [
+              StreamBuilder<List<UserInRoomModel>>(
+                  stream: supabase.client
+                      .from("user_in_room")
+                      .stream(primaryKey: ["id"])
+                      .eq("room_id", widget.roomId)
+                      .map(
+                        (maps) => maps
+                            .map((map) => UserInRoomModel.fromJson(map))
+                            .toList(),
+                      ),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return Container();
+                    }
+                    if (snapshot.hasData) {
+                      UserInRoomModel userInRoom = snapshot.data!
+                          .firstWhere((item) => item.userName == userName);
+                      yourTurn = userInRoom.yourTurn;
+                      return const SizedBox();
+                    }
+                    return Container();
+                  }),
+              Align(
+                alignment: const Alignment(0, 0),
+                child: SizedBox(
+                  child: Image.asset(AppString.gameBoard),
+                ),
+              ),
+              StreamBuilder<List<ChessPosition>>(
+                stream: _chessStream,
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) {
-                    return Container();
+                    listChessPositions = [];
+                    return const Center(child: CircularProgressIndicator());
                   }
+
                   if (snapshot.hasData) {
-                    UserInRoomModel userInRoom = snapshot.data!
-                        .firstWhere((item) => item.userName == userName);
-                    yourTurn = userInRoom.yourTurn;
-                    return const SizedBox();
+                    List<ChessPosition> listChessPositonResult = snapshot.data!;
+                    // print('leght of list chess pos');
+                    // print(listChessPositonResult.length);
+                    // print(listChessPositions.length);
+                    if (listChessPositonResult.length < 32) {
+                      listChessPositions.clear();
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+                    // if (listChessPositonResult.length == 32) {
+                    // for (var element in listChessPositonResult) {
+                    //   listChessPositions.add(element);
+                    // }
+
+                    else {
+                      // if (listChessPositions.isEmpty) {
+                      //
+                      // } else {
+                      //   if (checkItemContains(activeItem) ||
+                      //       yourTurn == false) {
+                      //     listChessPositions = snapshot.data!;
+                      //   } else {
+                      //     // listChessPositions = listChessPositions;
+                      //   }
+                      // }
+                      if (checkItemContains(activeItem) || yourTurn == false) {
+                        listChessPositions = snapshot.data!;
+                      } else if (listChessPositions.isEmpty) {
+                        listChessPositions = snapshot.data!;
+                      } else {
+                        listChessPositions = listChessPositions;
+                      }
+                    }
+
+                    // listChessPositions.clear();
+
+                    // }
                   }
-                  return Container();
-                }),
-            Align(
-              alignment: const Alignment(0, 0),
-              child: SizedBox(
-                child: Image.asset(AppString.gameBoard),
+
+                  return ChessPieces(
+                    isRed: widget.isRed,
+                    items: listChessPositions,
+                    activeItem: activeItem,
+                  );
+                },
               ),
-            ),
-            StreamBuilder<List<ChessPosition>>(
-              stream: _chessStream,
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  listChessPositions = [];
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                if (snapshot.hasData) {
-                  List<ChessPosition> listChessPositonResult = snapshot.data!;
-                  print('leght of list chess pos');
-                  print(listChessPositonResult.length);
-                  print(listChessPositions.length);
-
-                  if (listChessPositonResult.length < 32) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
-                  // if (listChessPositonResult.length == 32) {
-                  // for (var element in listChessPositonResult) {
-                  //   listChessPositions.add(element);
-                  // }
-                  else {
-                    listChessPositions = listChessPositonResult;
-                  }
-                  // listChessPositions.clear();
-
-                  // }
-                }
-
-                return ChessPieces(
-                  items: listChessPositions,
-                  activeItem: activeItem,
-                );
-              },
-            ),
-            Stack(
-              alignment: Alignment.center,
-              fit: StackFit.expand,
-              children: layer2,
-            ),
-          ],
+              Stack(
+                alignment: Alignment.center,
+                fit: StackFit.expand,
+                children: layer2,
+              ),
+            ],
+          ),
         ),
       ),
     );

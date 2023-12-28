@@ -5,13 +5,14 @@ import 'package:flutter/material.dart';
 
 class ChessPieces extends StatefulWidget {
   final List<ChessPosition> items;
-
+  final bool isRed;
   final ChessPosition? activeItem;
-  const ChessPieces({
-    Key? key,
-    required this.items,
-    required this.activeItem,
-  }) : super(key: key);
+  const ChessPieces(
+      {Key? key,
+      required this.items,
+      required this.activeItem,
+      required this.isRed})
+      : super(key: key);
 
   @override
   State<ChessPieces> createState() => _ChessPiecesState();
@@ -48,13 +49,18 @@ class _ChessPiecesState extends State<ChessPieces> {
             item.x,
             item.y,
           ),
-          child: SizedBox(
-            width: 57 * ChessSkin().getScale(size),
-            height: 57 * ChessSkin().getScale(size),
-            child: Piece(
-              item: item.chess,
-              isHover: isHover,
-              isActive: isActive,
+          child: RotationTransition(
+            turns: widget.isRed
+                ? const AlwaysStoppedAnimation(1)
+                : const AlwaysStoppedAnimation(0.5),
+            child: SizedBox(
+              width: 57 * ChessSkin().getScale(size),
+              height: 57 * ChessSkin().getScale(size),
+              child: Piece(
+                item: item.chess,
+                isHover: isHover,
+                isActive: isActive,
+              ),
             ),
           ),
         );

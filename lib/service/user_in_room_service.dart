@@ -9,6 +9,7 @@ abstract class UserInRoomService {
   Future<void> updateTurnInUserInRoom(int roomId);
   Future<bool> getTeamInUserInRoom(String userName);
   Future<bool> getTurnInUserInRoom(String userName);
+  Future<bool> resetTurnInUserInRoom(int roomId);
 }
 
 class UserInRoomServireImplement extends UserInRoomService {
@@ -32,7 +33,10 @@ class UserInRoomServireImplement extends UserInRoomService {
           .eq("room_id", roomCreated.id);
 
       if (userIsCreated.length == 1) {
+        print(userInRoom.userName);
         await prefs.setString('userName', userInRoom.userName);
+        await prefs.setBool(
+            'isRed', UserInRoomModel.fromJson(userIsCreated[0]).isRed!);
         return true;
       }
       List<dynamic> result = await supabase.client
@@ -99,5 +103,34 @@ class UserInRoomServireImplement extends UserInRoomService {
     UserInRoomModel userInRoomModel =
         UserInRoomModel.fromJson(userIsCreated[0]);
     return userInRoomModel.yourTurn;
+  }
+
+  @override
+  Future<bool> resetTurnInUserInRoom(int roomId) async {
+    // TODO: implement resetTurnInUserInRoom
+
+    try {
+      List<UserInRoomModel> listUserInRoom = [];
+      List<dynamic> userIsCreated = await supabase.client
+          .from("user_in_room")
+          .select()
+          .eq("room_id", roomId);
+      if (userIsCreated.isEmpty) {
+        return false;
+      }
+      for (var element in userIsCreated) {
+        listUserInRoom.add(UserInRoomModel.fromJson(element));
+      }
+      for (var element in listUserInRoom) {
+        element.yourTurn = element.isRed!;
+        await supabase.client
+            .from('user_in_room')
+            .update(element.toJson())
+            .eq('id', element.id);
+      }
+      return true;
+    } catch (e) {
+      throw Exception(e);
+    }
   }
 }

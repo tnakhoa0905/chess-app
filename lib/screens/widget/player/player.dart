@@ -88,28 +88,32 @@ class PlaySinglePlayerState extends State<PlaySinglePlayer> {
                     return Container();
                   }
                 } else {
-                  UserInRoomModel userInRoom;
+                  UserInRoomModel userInRoomElse;
+
                   if (widget.myProfile) {
-                    userInRoom = snapshot.data!.firstWhere(
-                      (element) => element.userName.contains(userName),
+                    userInRoomElse = snapshot.data!.firstWhere(
+                      (element) {
+                        return element.userName == userName;
+                      },
                     );
                   } else {
-                    userInRoom = snapshot.data!.firstWhere(
+                    userInRoomElse = snapshot.data!.firstWhere(
                       (element) => element.userName != userName,
                     );
                   }
+
                   return SizedBox(
                     width: 229,
                     child: ListItem(
                         title: Text(
-                          userInRoom.userName,
+                          userInRoomElse.userName,
                           style: const TextStyle(fontSize: 14),
                         ),
                         subtitle: Text(
                           "Thinking ...",
                           style: TextStyle(
                               fontSize: 10,
-                              color: userInRoom.yourTurn == false
+                              color: userInRoomElse.yourTurn == false
                                   ? Colors.black
                                   : Colors.blue),
                         ),
