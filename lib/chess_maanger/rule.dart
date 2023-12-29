@@ -56,6 +56,30 @@ class ChessRule {
       orElse: () => ChessPosition(
           x: -1, y: -1, chess: Chess(isUp: true, isDead: true, isRed: true)),
     );
+    print(newItem.chess.chessCodeUp);
+
+    if (newItem.x == -1) {
+      result = false;
+    }
+    if (chessPosition.chess.isRed != newItem.chess.isRed) {
+      result = false;
+    }
+
+    return result;
+  }
+
+  bool checkCanMoveMa(ChessPositionModel chessPositionModel,
+      List<ChessPosition> list, ChessPosition chessPosition) {
+    bool result = true;
+    ChessPosition? newItem = list.firstWhere(
+      (item) {
+        return (item.x == chessPositionModel.x &&
+            item.y == chessPositionModel.y &&
+            item.chess.isDead == false);
+      },
+      orElse: () => ChessPosition(
+          x: -1, y: -1, chess: Chess(isUp: true, isDead: true, isRed: true)),
+    );
 
     print(newItem.chess.chessCodeUp);
     if (newItem.chess.chessCode != null) {
@@ -228,7 +252,7 @@ class ChessRule {
       // Xem quan ma co bi chan khong
 
       print('${activePos.x + m[0] ~/ 2} ' '${activePos.y + m[1] ~/ 2}');
-      if (checkCanMove(
+      if (checkCanMoveMa(
           ChessPositionModel(
               x: activePos.x + m[0] ~/ 2, y: activePos.y + m[1] ~/ 2),
           listChessPosition,
@@ -273,6 +297,10 @@ class ChessRule {
       if (newPoint.y < 0 || newPoint.y > 9) {
         continue;
       }
+      print(newPoint.x);
+      print(newPoint.y);
+      print(newPoint.x + m[0] ~/ 2);
+      print(newPoint.y + m[1] ~/ 2);
       if (checkCanMove(
           ChessPositionModel(
               x: newPoint.x + m[0] ~/ 2, y: newPoint.y + m[1] ~/ 2),
@@ -409,23 +437,36 @@ class ChessRule {
         x: activePos.x + m[0],
         y: activePos.y + m[1],
       );
+      print(newChessPosModel.x);
+      print(newChessPosModel.y);
+
       while (newChessPosModel.x >= 0 &&
           newChessPosModel.x <= 8 &&
           newChessPosModel.y >= 0 &&
           newChessPosModel.y <= 9) {
-        if (checkCanMove(newChessPosModel, listChessPosition, activePos)) {
-          break;
-        }
+        print(newChessPosModel.x);
+        print(newChessPosModel.y);
         ChessPositionModel? chessKing =
             isKing(listChessPosition, activePos, newChessPosModel);
 
         if (chessKing.x != -1) {
+          print('object');
           points.add(chessKing);
+          break;
         }
+        // if (checkCanMove(newChessPosModel, listChessPosition, activePos)) {
+        //   continue;
+        // }
+
         // } if (!current.chess.isDead) {
         //   break;
-        newChessPosModel.x += m[0];
-        newChessPosModel.y += m[1];
+        if (activePos.chess.isRed) {
+          newChessPosModel.x += m[0];
+          newChessPosModel.y += m[1];
+        } else {
+          newChessPosModel.x -= m[0];
+          newChessPosModel.y -= m[1];
+        }
       }
     }
     return points;

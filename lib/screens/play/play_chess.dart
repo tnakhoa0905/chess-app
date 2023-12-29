@@ -62,45 +62,61 @@ class _PlayChess extends State<PlayChess> {
         body: Center(
           child: SizedBox(
             // height: skin.height * scale,
-            width: skin.width * scale,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
+            // width: skin.width * scale,
+            child: Stack(
+              fit: StackFit.loose,
               children: [
-                Row(
-                  children: [
-                    GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey),
-                            shape: BoxShape.circle),
-                        child: const Icon(
-                          Icons.navigate_before,
-                          color: Colors.grey,
+                Image.asset(
+                  'assets/images/hinh.jpg',
+                  fit: BoxFit.cover,
+                  height: MediaQuery.of(context).size.height,
+                ),
+                Center(
+                  child: Container(
+                    width: skin.width * scale,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Row(
+                          children: [
+                            GestureDetector(
+                              onTap: () => Navigator.pop(context),
+                              child: Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.grey),
+                                    shape: BoxShape.circle),
+                                child: const Icon(
+                                  Icons.navigate_before,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            )
+                          ],
                         ),
-                      ),
-                    )
-                  ],
-                ),
-                TextButton(
-                    onPressed: () async {
-                      await _chessServicer.deleteAllChess(roomId);
-                      _boardModel.randomlist(roomId);
-                      _userInRoomService.resetTurnInUserInRoom(roomId);
-                    },
-                    child: const Text('New Game')),
-                const PlaySinglePlayer(
-                  placeAt: Alignment.topCenter,
-                  myProfile: false,
-                ),
-                if (!(roomId == 0) && !(userName == ''))
-                  Board(roomId: roomId, userName: userName, isRed: isRed),
-                const PlaySinglePlayer(
-                  placeAt: Alignment.topCenter,
-                  myProfile: true,
+                        TextButton(
+                            onPressed: () async {
+                              await _chessServicer.deleteAllChess(roomId);
+                              _boardModel.randomlist(roomId);
+                              _userInRoomService.resetTurnInUserInRoom(roomId);
+                            },
+                            child: const Text('New Game')),
+                        const PlaySinglePlayer(
+                          placeAt: Alignment.topCenter,
+                          myProfile: false,
+                        ),
+                        if (!(roomId == 0) && !(userName == ''))
+                          Board(
+                              roomId: roomId, userName: userName, isRed: isRed),
+                        const PlaySinglePlayer(
+                          placeAt: Alignment.topCenter,
+                          myProfile: true,
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),

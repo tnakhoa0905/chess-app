@@ -1,4 +1,5 @@
 import 'package:chess_app_flutter/chess_maanger/rule.dart';
+import 'package:chess_app_flutter/core/chess_type.dart';
 import 'package:chess_app_flutter/core/constrain.dart';
 import 'package:chess_app_flutter/models/board_model.dart';
 import 'package:chess_app_flutter/models/chess.dart';
@@ -11,6 +12,7 @@ import 'package:chess_app_flutter/screens/widget/point_widget.dart';
 import 'package:chess_app_flutter/service/chess_service.dart';
 import 'package:chess_app_flutter/service/user_in_room_service.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -75,12 +77,14 @@ class _BoardState extends State<Board> {
   void dispose() {
     super.dispose();
     // _chessService.deleteAllChess(widget.roomId);
+    listChessPositions.clear();
   }
 
   void setYourTurn() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     userName = prefs.getString('userName')!;
-    isRed = await _userInRoomService.getTeamInUserInRoom(userName);
+    // isRed = await _userInRoomService.getTeamInUserInRoom(userName);
+    isRed = widget.isRed;
     yourTurn = await _userInRoomService.getTurnInUserInRoom(userName);
     setState(() {
       isRed;
@@ -124,8 +128,11 @@ class _BoardState extends State<Board> {
           });
           return false;
         }
-        int index = listChessPositions.indexWhere(
-            (item) => item.x == activeItem!.x && item.y == activeItem!.y);
+        int index = listChessPositions.indexWhere((item) =>
+            item.x == activeItem!.x &&
+            item.y == activeItem!.y &&
+            item.chess.chessCode == activeItem!.chess.chessCode &&
+            item.chess.chessCodeUp == activeItem!.chess.chessCodeUp);
         int result = movePoints.indexWhere(
             (item) => item.x == toPosition.x && item.y == toPosition.y);
         if (result < 0) {
@@ -143,16 +150,24 @@ class _BoardState extends State<Board> {
         // List<ChessPosition> listchekc = [];
         if (indexEat != -1) {
           setState(() {
+            print(toPosition.x);
+            print(toPosition.y);
             print('move');
             listChessPositions[indexEat].chess.isDead = true;
             listChessPositions[index].chess.isUp = false;
-            activeItem = null;
-            yourTurn = !yourTurn;
             listChessPositions[index].x = toPosition.x;
             listChessPositions[index].y = toPosition.y;
+            print(listChessPositions[index].x);
+            print(listChessPositions[index].y);
+            activeItem = null;
+            yourTurn = !yourTurn;
             movePoints = [];
           });
           // Future.delayed(const Duration(seconds: 2), () async {});
+          print(listChessPositions[index].chess.chessCode);
+          print(listChessPositions[index].chess.chessCodeUp);
+          print(listChessPositions[index].x);
+          print(listChessPositions[index].y);
           _chessService.updateChess(listChessPositions[indexEat]);
           _chessService.updateChess(listChessPositions[index]);
         } else {
@@ -168,88 +183,11 @@ class _BoardState extends State<Board> {
           });
           _chessService.updateChess(listChessPositions[index]);
         }
+
         _userInRoomService.updateTurnInUserInRoom(widget.roomId);
-
-        // List<ChessPositionModel> listKingEnermy = ChessRule()
-        //     .moveKing(ChessType.tuong, chessPosition, listChessPositions);
-        // for (var element in listKingEnermy) {
-        //   ChessPosition chessPositionErnemy = listChessPositions.firstWhere(
-        //       (item) =>
-        //           chessIsRed != item.chess.isRed &&
-        //           item.chess.chessCode == ChessType.tuong &&
-        //           item.x == element.x &&
-        //           item.y == element.y,
-        //       orElse: () => ChessPosition(
-        //           x: -1,
-        //           y: -1,
-        //           chess: Chess(isUp: false, isDead: true, isRed: true)));
-        //   if (chessPositionErnemy.x != -1) {
-        //     Fluttertoast.showToast(
-        //         msg: "Lộ mặt tướng",
-        //         toastLength: Toast.LENGTH_SHORT,
-        //         gravity: ToastGravity.CENTER,
-        //         timeInSecForIosWeb: 1,
-        //         textColor: Colors.white,
-        //         fontSize: 16.0);
-        //     listChessPositions[index].x = lastPosition.x;
-        //     listChessPositions[index].y = lastPosition.y;
-        //     await _chessService.updateChess(listChessPositions[index]);
-        //     setState(() {
-        //       lastPosition = ChessPositionModel(x: -1, y: -1);
-        //     });
-        //     return false;
-        //   }
-        // }
-
         return true;
       }
     }
-    // if (!newActive.chess.isDead) {
-    //   if (activeItem != null) {
-    //     if (activeItem!.chess.isRed != isRed && yourTurn == true) {
-    //       print("false");
-    //       setState(() {
-    //         activeItem = null;
-    //         movePoints = [];
-    //       });
-    //       return false;
-    //     }
-    //     int indexEat = -1;
-    //     int index = listChessPositions.indexWhere(
-    //         (item) => item.x == activeItem!.x && item.y == activeItem!.y);
-    //     indexEat = listChessPositions.indexWhere(
-    //         (item) => item.x == toPosition.x && item.y == toPosition.y);
-    //     int result = movePoints.indexWhere(
-    //         (item) => item.x == toPosition.x && item.y == toPosition.y);
-    //     if (result < 0) {
-    //       setState(() {
-    //         movePoints = [];
-    //         activeItem = null;
-    //       });
-    //       return false;
-    //     }
-    //     setState(() {
-    //       movePoints = [];
-    //     });
-    //     if (indexEat != -1) {
-    //       listChessPositions[indexEat].chess.isDead = true;
-    //       await _chessService.updateChess(listChessPositions[indexEat]);
-    //     }
-    //     listChessPositions[index].x = toPosition.x;
-    //     listChessPositions[index].y = toPosition.y;
-    //     listChessPositions[index].chess.isUp = false;
-    //     // await _chessService.updateChess(listChessPositions[indexEat]);
-    //     await _chessService.updateChess(listChessPositions[index]);
-    //     Future.delayed(const Duration(seconds: 2), () async {
-    //       await _userInRoomService.updateTurnInUserInRoom(widget.roomId);
-    //     });
-    //     setState(() {
-    //       movePoints = [];
-    //       activeItem = null;
-    //     });
-    //     return true;
-    //   }
-    // }
 
     if (activeItem != null) {
       // Sound.play(Sound.click);
@@ -319,7 +257,7 @@ class _BoardState extends State<Board> {
     }
     Size size = MediaQuery.of(context).size;
     double scale = ChessSkin().getScale(size);
-
+    print(widget.isRed);
     return RotationTransition(
       turns: widget.isRed
           ? const AlwaysStoppedAnimation(1)
@@ -390,16 +328,15 @@ class _BoardState extends State<Board> {
                     // }
 
                     else {
-                      // if (listChessPositions.isEmpty) {
-                      //
-                      // } else {
-                      //   if (checkItemContains(activeItem) ||
-                      //       yourTurn == false) {
-                      //     listChessPositions = snapshot.data!;
-                      //   } else {
-                      //     // listChessPositions = listChessPositions;
-                      //   }
-                      // }
+                      if (listChessPositions.isEmpty) {
+                      } else {
+                        if (checkItemContains(activeItem) ||
+                            yourTurn == false) {
+                          listChessPositions = snapshot.data!;
+                        } else {
+                          // listChessPositions = listChessPositions;
+                        }
+                      }
                       if (checkItemContains(activeItem) || yourTurn == false) {
                         listChessPositions = snapshot.data!;
                       } else if (listChessPositions.isEmpty) {

@@ -21,57 +21,73 @@ class _LoginPage extends State<LoginPage> {
         child: Scaffold(
       body: SizedBox(
         width: MediaQuery.of(context).size.width,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
+        child: Stack(
           children: [
-            Container(
-              constraints: const BoxConstraints(maxWidth: 350),
-              child: TextFormField(
-                controller: _enterRoom,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: 'Enter ID room',
-                ),
+            Image.asset(
+              'assets/images/hinh.jpg',
+              fit: BoxFit.cover,
+              height: MediaQuery.of(context).size.height,
+            ),
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    constraints: const BoxConstraints(maxWidth: 350),
+                    child: TextFormField(
+                      controller: _enterRoom,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(
+                            borderSide: BorderSide(
+                                color: Color.fromARGB(255, 152, 128, 119),
+                                width: 2)),
+                        hintText: 'Enter ID room',
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Container(
+                    constraints: const BoxConstraints(maxWidth: 350),
+                    child: TextFormField(
+                      controller: _userName,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        hintText: 'Enter User',
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  TextButton(
+                    onPressed: () async {
+                      bool result = await _userInRoomService.createUserInRoom(
+                          UserInRoomModel(
+                              roomId: -1,
+                              yourTurn: false,
+                              userName: _userName.text,
+                              isRed: false),
+                          _enterRoom.text);
+                      if (result) {
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => const HomeScreen()));
+                        _enterRoom.clear();
+                        _userName.clear();
+                      } else {
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(const SnackBar(
+                          content:
+                              Text("Tên đã tồn taị hoặc phòng đã đủ người"),
+                        ));
+                      }
+                    },
+                    child: const Text('Create'),
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            Container(
-              constraints: const BoxConstraints(maxWidth: 350),
-              child: TextFormField(
-                controller: _userName,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: 'Enter User',
-                ),
-              ),
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            TextButton(
-              onPressed: () async {
-                bool result = await _userInRoomService.createUserInRoom(
-                    UserInRoomModel(
-                        roomId: -1,
-                        yourTurn: false,
-                        userName: _userName.text,
-                        isRed: false),
-                    _enterRoom.text);
-                if (result) {
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => const HomeScreen()));
-                  _enterRoom.clear();
-                  _userName.clear();
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    content: Text("Tên đã tồn taị hoặc phòng đã đủ người"),
-                  ));
-                }
-              },
-              child: const Text('Create'),
             ),
           ],
         ),

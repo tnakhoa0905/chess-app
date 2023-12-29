@@ -34,6 +34,7 @@ class UserInRoomServireImplement extends UserInRoomService {
 
       if (userIsCreated.length == 1) {
         print(userInRoom.userName);
+        print(UserInRoomModel.fromJson(userIsCreated[0]).isRed!);
         await prefs.setString('userName', userInRoom.userName);
         await prefs.setBool(
             'isRed', UserInRoomModel.fromJson(userIsCreated[0]).isRed!);
@@ -52,15 +53,17 @@ class UserInRoomServireImplement extends UserInRoomService {
       }
 
       userInRoom.roomId = roomCreated.id;
-      await supabase.client
+      List<dynamic> createUser = await supabase.client
           .from("user_in_room")
           .insert(userInRoom.toJson())
           .select();
       await prefs.setString('userName', userInRoom.userName);
 
+      await prefs.setBool(
+          'isRed', UserInRoomModel.fromJson(createUser[0]).isRed!);
       return true;
     } catch (e) {
-      return false;
+      throw Exception(e);
     }
   }
 

@@ -1,3 +1,4 @@
+import 'package:chess_app_flutter/models/skin.dart';
 import 'package:chess_app_flutter/models/user.dart';
 import 'package:chess_app_flutter/screens/widget/player/list_item.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +20,7 @@ class PlaySinglePlayer extends StatefulWidget {
 
 class PlaySinglePlayerState extends State<PlaySinglePlayer> {
   Supabase supabase = Supabase.instance;
+  final ChessSkin skin = ChessSkin();
   int roomId = 0;
   String userName = '';
   @override
@@ -42,8 +44,10 @@ class PlaySinglePlayerState extends State<PlaySinglePlayer> {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    double scale = ChessSkin().getScale(size);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+      // padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Row(children: [
         StreamBuilder<List<UserInRoomModel>>(
             stream: supabase.client
@@ -66,7 +70,7 @@ class PlaySinglePlayerState extends State<PlaySinglePlayer> {
                       (element) => element.userName.contains(userName),
                     );
                     return SizedBox(
-                      width: 229,
+                      width: skin.width * scale,
                       child: ListItem(
                           title: Text(
                             userInRoom.userName,
@@ -103,7 +107,7 @@ class PlaySinglePlayerState extends State<PlaySinglePlayer> {
                   }
 
                   return SizedBox(
-                    width: 229,
+                    width: 521 * scale,
                     child: ListItem(
                         title: Text(
                           userInRoomElse.userName,
