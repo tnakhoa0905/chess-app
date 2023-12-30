@@ -68,7 +68,7 @@ class _PlayChess extends State<PlayChess> {
               children: [
                 Image.asset(
                   'assets/images/hinh.jpg',
-                  fit: BoxFit.cover,
+                  fit: BoxFit.fill,
                   height: MediaQuery.of(context).size.height,
                 ),
                 Center(
