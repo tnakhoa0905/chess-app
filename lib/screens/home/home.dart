@@ -15,6 +15,7 @@ class HomeScreen extends StatelessWidget {
               'assets/images/hinh.jpg',
               fit: BoxFit.fill,
               height: MediaQuery.of(context).size.height,
+              width: MediaQuery.of(context).size.width,
             ),
             Center(
               child: Column(
