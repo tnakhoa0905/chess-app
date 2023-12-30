@@ -1,5 +1,6 @@
 import 'package:chess_app_flutter/core/constrain.dart';
 import 'package:chess_app_flutter/screens/auth/login_page.dart';
+import 'package:chess_app_flutter/screens/room_page/room_page.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 

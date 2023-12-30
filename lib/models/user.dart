@@ -1,29 +1,18 @@
-class UserInRoomModel {
+class UserModel {
   int? id;
-  int roomId;
-  bool yourTurn;
-  String userName;
-  bool? isRed;
+  String name;
 
-  UserInRoomModel(
-      {this.id,
-      required this.roomId,
-      required this.yourTurn,
-      required this.userName,
-      this.isRed});
+  UserModel({
+    this.id,
+    required this.name,
+  });
 
-  factory UserInRoomModel.fromJson(Map<String, dynamic> json) =>
-      UserInRoomModel(
-          id: json["id"],
-          roomId: json["room_id"],
-          yourTurn: json["your_turn"],
-          userName: json["user_name"],
-          isRed: json["is_red"]);
+  factory UserModel.fromJson(Map<String, dynamic> json) => UserModel(
+        id: json["id"],
+        name: json["name"],
+      );
 
   Map<String, dynamic> toJson() => {
-        "room_id": roomId,
-        "your_turn": yourTurn,
-        "user_name": userName,
-        "is_red": isRed
+        "room_id": name,
       };
 }

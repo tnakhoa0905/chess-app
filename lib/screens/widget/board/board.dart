@@ -1,18 +1,16 @@
 import 'package:chess_app_flutter/chess_maanger/rule.dart';
-import 'package:chess_app_flutter/core/chess_type.dart';
 import 'package:chess_app_flutter/core/constrain.dart';
 import 'package:chess_app_flutter/models/board_model.dart';
 import 'package:chess_app_flutter/models/chess.dart';
 import 'package:chess_app_flutter/models/chess_position.dart';
 import 'package:chess_app_flutter/models/pos.dart';
 import 'package:chess_app_flutter/models/skin.dart';
-import 'package:chess_app_flutter/models/user.dart';
+import 'package:chess_app_flutter/models/user_in_room.dart';
 import 'package:chess_app_flutter/screens/widget/chess_piece/chess_piece.dart';
 import 'package:chess_app_flutter/screens/widget/point_widget.dart';
 import 'package:chess_app_flutter/service/chess_service.dart';
 import 'package:chess_app_flutter/service/user_in_room_service.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 

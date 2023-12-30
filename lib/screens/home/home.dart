@@ -21,15 +21,27 @@ class HomeScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).push(MaterialPageRoute(
-                          builder: ((context) => const PlayChess()),
-                        ));
-                      },
-                      child: const Text('Play with friend')),
-                  ElevatedButton(
-                      onPressed: () {}, child: const Text('Play with bot'))
+                  SizedBox(
+                    height: 50,
+                    width: 300,
+                    child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                            builder: ((context) => const PlayChess()),
+                          ));
+                        },
+                        child: const Text('Play with friend')),
+                  ),
+                  const SizedBox(
+                    height: 4,
+                  ),
+                  SizedBox(
+                    height: 50,
+                    width: 300,
+                    child: ElevatedButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: const Text('Back')),
+                  )
                 ],
               ),
             ),

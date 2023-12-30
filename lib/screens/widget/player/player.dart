@@ -1,5 +1,5 @@
 import 'package:chess_app_flutter/models/skin.dart';
-import 'package:chess_app_flutter/models/user.dart';
+import 'package:chess_app_flutter/models/user_in_room.dart';
 import 'package:chess_app_flutter/screens/widget/player/list_item.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';

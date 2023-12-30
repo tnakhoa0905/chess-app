@@ -1,5 +1,5 @@
 import 'package:chess_app_flutter/models/room.dart';
-import 'package:chess_app_flutter/models/user.dart';
+import 'package:chess_app_flutter/models/user_in_room.dart';
 import 'package:chess_app_flutter/service/room_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';

@@ -1,23 +1,19 @@
 import 'package:chess_app_flutter/models/user.dart';
-import 'package:chess_app_flutter/models/user_in_room.dart';
-import 'package:chess_app_flutter/screens/home/home.dart';
 import 'package:chess_app_flutter/screens/room_page/room_page.dart';
-import 'package:chess_app_flutter/screens/sign_up/sign_up_page.dart';
-import 'package:chess_app_flutter/service/user_in_room_service.dart';
 import 'package:chess_app_flutter/service/user_service.dart';
 import 'package:flutter/material.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+class SignUpPage extends StatefulWidget {
+  const SignUpPage({Key? key}) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => _LoginPage();
+  State<SignUpPage> createState() => _SignUpPageState();
 }
 
-class _LoginPage extends State<LoginPage> {
-  final TextEditingController _userName = TextEditingController();
-  final UserService _userService = UserServiceImplement();
+class _SignUpPageState extends State<SignUpPage> {
+  final TextEditingController _userNameController = TextEditingController();
 
+  final UserService _userService = UserServiceImplement();
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -38,7 +34,7 @@ class _LoginPage extends State<LoginPage> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const Text(
-                    'Login',
+                    'Sign Up',
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
                   ),
                   const SizedBox(
@@ -47,7 +43,7 @@ class _LoginPage extends State<LoginPage> {
                   Container(
                     constraints: const BoxConstraints(maxWidth: 350),
                     child: TextFormField(
-                      controller: _userName,
+                      controller: _userNameController,
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(
                             borderSide: BorderSide(
@@ -65,19 +61,43 @@ class _LoginPage extends State<LoginPage> {
                     height: 50,
                     child: ElevatedButton(
                       onPressed: () async {
-                        UserModel? result =
-                            await _userService.getUser(_userName.text);
+                        UserModel? result = await _userService
+                            .createUser(_userNameController.text);
 
                         if (result != null) {
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(const SnackBar(
+                            content: Text("Đăng ký thành công"),
+                          ));
                           Navigator.of(context).push(MaterialPageRoute(
                               builder: (context) => const RoomPage()));
-                          _userName.clear();
+                          _userNameController.clear();
                         } else {
                           ScaffoldMessenger.of(context)
                               .showSnackBar(const SnackBar(
                             content: Text("Tên đã tồn taị"),
                           ));
                         }
+
+                        // bool result = await _userInRoomService.createUserInRoom(
+                        //     UserInRoomModel(
+                        //         roomId: -1,
+                        //         yourTurn: false,
+                        //         userName: _userName.text,
+                        //         isRed: false),
+                        //     _enterRoom.text);
+                        // if (result) {
+                        //   Navigator.of(context).push(MaterialPageRoute(
+                        //       builder: (context) => const HomeScreen()));
+                        //   _enterRoom.clear();
+                        //   _userName.clear();
+                        // } else {
+                        //   ScaffoldMessenger.of(context)
+                        //       .showSnackBar(const SnackBar(
+                        //     content:
+                        //         Text("Tên đã tồn taị"),
+                        //   ));
+                        // }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
@@ -89,17 +109,14 @@ class _LoginPage extends State<LoginPage> {
                           side: BorderSide(width: 2, color: Colors.green),
                         ),
                       ),
-                      child: const Text('Login'),
+                      child: const Text('Create'),
                     ),
                   ),
                   const SizedBox(width: 60, child: Divider()),
                   GestureDetector(
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: ((context) => const SignUpPage()))),
+                    onTap: () => Navigator.pop(context),
                     child: const Text(
-                      'or Sign Up',
+                      'or Sign In',
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
